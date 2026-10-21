@@ -29,6 +29,21 @@ Data preparation, data quality review and regression modelling on a public US En
 | 5. Explainability | SHAP summary of which features drive predictions |
 | 6. Findings | Results, limitations and improvements |
 
+## Data quality findings
+
+| Check | Result |
+|---|---|
+| Missing values | None in any of the 15 columns |
+| Duplicates | None, including when the row counter column is ignored |
+| Negative values | None |
+| Coverage | 1999 to 2013, 51 states (including DC), 3,120 counties |
+| Units | 10 different measures in 3 units (µg/m³, percent, counts) |
+
+**Key findings**
+- **Mixed measures and scales.** `Value` combines 10 measures whose scales differ enormously: PM2.5 concentrations are around 10, while person-day counts reach about 1.08 billion. Much of the apparent skew in `Value` comes from mixing these measures, not from the data itself.
+- **Naming consistency.** Some measures appear twice with slightly different names (for example "PM 2.5" and "PM2.5") and different row counts, which suggests variants from different data sources. These should be checked and standardised before combining.
+- **Identifier columns.** `StateFips` and `CountyFips` are location codes, not quantities.
+
 ## Results
 
 | Model | MAE | R² |
@@ -40,7 +55,7 @@ Values are on the log scale. The model clearly beats the baseline, but explains 
 
 ## Limitations and what I would do differently
 
-- **Mixed units in the target.** The `Value` column combines different measures (for example counts of days and concentrations) with different units. I would model one measure at a time, or standardise values within each measure.
+- **Mixed units in the target.** The `Value` column combines 10 measures in 3 units with very different scales. I would standardise the measure names first, then model one measure at a time, or standardise values within each measure.
 - **Location codes used as numbers.** `StateFips` and `CountyFips` are codes, not quantities. I would encode them as categories or replace them with meaningful regional features.
 - **Notebook, not a pipeline.** For production, I would move the cleaning steps into a repeatable script with automated data quality checks, and load the clean data into a database.
 
